@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./;protos";
+
+message CRDTObject {
+  string crdt_object_id = 1;
+  CRDTObjectNode head = 4;
+}
+
+message CRDTClock {
+  int64 seed = 1;
+  int64 count = 2;
+}
+
+message CRDTObjectNode {
+  map<string, CRDTObjectNode> map = 1;
+  GCounter g_counter = 4;
+  MVRegister mv_register = 5;
+  repeated CRDTClock last_operations = 7;
+  string map_value = 8;
+}
+
+message CRDTOperationsList {
+  string crdt_object_id = 1;
+  repeated CRDTOperation operations = 2;
+}
+
+message CRDTOperation {
+  string operation_id = 1;
+  repeated string operation_path = 2;
+  string key = 5;
+  enum ValueType {
+    NOTYPECRDT = 0;
+    MAP = 1;
+    G_COUNTER = 2;
+    MV_REGISTER = 3;
+    MV_REGISTER_STRING = 5;
+  }
+  ValueType value_type = 6;
+  string value = 7;
+  string clock = 9;
+}
+
+message GCounter {
+  int32 counterValue = 1;
+}
+
+message MVRegister {
+  repeated bool register_value = 1;
+  repeated string register_value_string = 2;
+}

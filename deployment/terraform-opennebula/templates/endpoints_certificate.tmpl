@@ -1,0 +1,13 @@
+%{ for index, ip in nodes-ips ~}
+${ip}
+%{ endfor ~}
+%{ for index, ip in orderer-ips ~}
+${ip}
+%{ endfor ~}
+%{ for index, ip in sequencer-ips ~}
+${ip}
+%{ endfor ~}
+%{ for index, ip in clients-ips ~}
+${ip}
+%{ endfor ~}
+

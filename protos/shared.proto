@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package protos;
+option go_package = "./;protos";
+
+message Empty {
+
+}
+
+enum TargetSystem {
+  NOTYPESYSTEM = 0;
+  ORDERLESSCHAIN = 1;
+  FABRIC = 2;
+  FABRICCRDT = 3;
+  BIDL = 5;
+  SYNCHOTSTUFF = 6;
+}
+
+message OperationMode {
+  TargetSystem target_system = 1;
+  int32 endorsement_policy = 12;
+  int32 gossip_node_count = 3;
+  int32 total_node_count = 4;
+  int32 total_client_count = 5;
+  int32 total_orderer_count = 6;
+  int32 gossip_interval_ms = 7;
+  int32 transaction_timeout_second = 8;
+  int32 block_time_out_ms = 10;
+  int32 block_transaction_size = 11;
+  int32 proposal_queue_consumption_rate_tps = 14;
+  int32 transaction_queue_consumption_rate_tps = 15;
+  string benchmark = 16;
+  int32 queue_ticker_duration_ms = 17;
+  int32 extra_endorsement_orgs = 18;
+  string profiling_enabled = 19;
+  int32 orgs_percentage_increased_load = 20;
+  int32 load_increase_percentage = 21;
+  int32 total_sequencer_count = 22;
+}
+
+enum FailureType {
+  NOTYPEFAILURE = 0;
+  CRASHED = 1;
+  TAMPERED = 2;
+  NOTRESPONDING = 3;
+  RANODM = 4;
+}
+
+message FailureCommandMode {
+  int32 failure_duration_s = 1;
+  FailureType failure_type = 2;
+}
+
+message Profiling {
+  enum ProfilingType {
+    NONE = 0;
+    CPU = 1;
+    MEMORY = 2;
+  }
+  ProfilingType profiling_type = 1;
+}
+
+message ProfilingResult {
+  bytes content = 1;
+}
+
+message ReportFile {
+  bytes content = 1;
+}
+
+message LatencyBreakDown {
+  string transaction_id = 1;
+  int64 sequence_duration = 2;
+  int64 order_duration = 3;
+  int64 endorse_duration = 4;
+  int64 exec_bidl_duration = 5;
+  int64 commit_duration = 6;
+}
+
+message MemoryCPUProfile {
+  string timestamp = 1;
+  int64 cpu_usage_percentage = 2;
+  int64 allocated_heap = 3;
+  int64 heap_in_use = 4;
+  int64 total_allocated = 5;
+  int64 system_memory = 6;
+}
+
+message BlockEventSubscription {
+  string node_id = 1;
+}

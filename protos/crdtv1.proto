@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./;protos";
+
+enum TimeBase {
+  ZERO = 0;
+  BASE = 10;
+}
+
+message Clock {
+  int64 seed = 1;
+  int64 count = 2;
+}
+
+enum MutationType {
+  NOOP = 0;
+  INSERT = 1;
+  DELETE = 2;
+  ASSIGN = 3;
+}
+
+message Operation {
+  string ID = 1;
+  repeated string deps = 2;
+  Cursor cursor = 3;
+  Mutation mutation = 4;
+}
+
+message Mutation {
+  MutationType type = 1;
+  string key = 2;
+  int32 key_int = 3;
+  string value = 4;
+  Node value_node = 5;
+  bool is_list = 6;
+}
+
+
+enum CursorType {
+  NOTYPE = 0;
+  MAP = 1;
+  LIST = 2;
+  REG = 3;
+}
+
+message Cursor {
+  repeated ListKey list_path = 1;
+  repeated MapKey map_path = 2;
+  string key = 3;
+  int32 key_int = 4;
+}
+
+message ListKey {
+  int64 key = 1;
+}
+
+message MapKey {
+  string key = 1;
+}
+
+message Node {
+  repeated string deps = 1;
+  string opID = 2;
+  map<string, Node> hmap = 3;
+  repeated Node list = 4;
+  map<string, string> reg = 5;
+  int32 list_length = 6;
+}
+
+
+message Doc {
+  string Id = 1;
+  repeated Clock clocks = 2;
+  Clock clock = 6;
+  repeated string operations_id = 3;
+  Node head = 4;
+  repeated Operation operation_buffer = 5;
+}
+
+message DocChanges {
+  string Id = 4;
+  string ClockId = 1;
+  repeated Operation operations = 3;
+}

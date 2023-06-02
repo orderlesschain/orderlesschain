@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package protos;
+option go_package = "./;protos";
+
+import "transaction.proto";
+import "shared.proto";
+
+message SequencedTransactionForOrdering {
+  string node_id = 1;
+}
+
+message SequencedTransactionForCommitting {
+  string node_id = 1;
+}
+
+service SequencerService {
+  rpc BIDLTransactions (stream protos.ProposalRequest) returns (Empty);
+  rpc SubscribeTransactionsForOrdering (SequencedTransactionForOrdering) returns (stream ProposalRequest);
+  rpc SubscribeTransactionsForProcessing (SequencedTransactionForCommitting) returns (stream ProposalRequest);
+  rpc ChangeModeRestart (OperationMode) returns (Empty);
+  rpc GetTransactionProfilingResult (Empty) returns (stream LatencyBreakDown);
+  rpc GetCPUMemoryProfilingResult (Empty) returns (stream MemoryCPUProfile);
+}

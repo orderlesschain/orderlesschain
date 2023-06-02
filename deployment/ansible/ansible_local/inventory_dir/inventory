@@ -1,0 +1,21 @@
+192.168.56.10 ansible_user='ubuntu' ansible_ssh_private_key_file='/PROJECT_ABSOLUTE_PATH/deployment/vagrant/.vagrant/machines/orderer-0/virtualbox/private_key'
+192.168.56.11 ansible_user='ubuntu' ansible_ssh_private_key_file='/PROJECT_ABSOLUTE_PATH/deployment/vagrant/.vagrant/machines/node-0/virtualbox/private_key'
+192.168.56.12 ansible_user='ubuntu' ansible_ssh_private_key_file='/PROJECT_ABSOLUTE_PATH/deployment/vagrant/.vagrant/machines/node-1/virtualbox/private_key'
+192.168.56.13 ansible_user='ubuntu' ansible_ssh_private_key_file='/PROJECT_ABSOLUTE_PATH/deployment/vagrant/.vagrant/machines/client-0/virtualbox/private_key'
+192.168.56.14 ansible_user='ubuntu' ansible_ssh_private_key_file='/PROJECT_ABSOLUTE_PATH/deployment/vagrant/.vagrant/machines/client-1/virtualbox/private_key'
+192.168.56.15 ansible_user='ubuntu' ansible_ssh_private_key_file='/PROJECT_ABSOLUTE_PATH/deployment/vagrant/.vagrant/machines/cli-0/virtualbox/private_key'
+
+[orderers]
+192.168.56.10
+
+[nodes]
+192.168.56.11
+192.168.56.12
+
+[clients]
+192.168.56.13
+192.168.56.14
+
+[clis]
+192.168.56.15
+

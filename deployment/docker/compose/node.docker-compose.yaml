@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  node:
+    container_name: orderlesschainnode
+    image: registry/orderlesschain-node:latest
+    restart: always
+    logging:
+      driver: journald
+    ports:
+      - "9000:9000"
+      - "9003:9003"
+      - "6060:6060"
+    volumes:
+      - /home/ubuntu/node/logs:/node/logs
+      - /home/ubuntu/node/data:/node/data
+      - /home/ubuntu/node/configs:/node/configs

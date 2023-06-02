@@ -1,0 +1,14 @@
+---
+nodes:
+    node0: 192.168.56.11
+    node1: 192.168.56.12
+
+orderers:
+    orderer0: 192.168.56.10
+
+clients:
+    client0: 192.168.56.13
+    client1: 192.168.56.14
+
+clis:
+    cli0: 192.168.56.15

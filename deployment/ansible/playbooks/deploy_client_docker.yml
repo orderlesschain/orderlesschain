@@ -1,0 +1,87 @@
+---
+- name: Deploying clients to the inventories using docker
+  hosts: clients
+  tags: [ "deploy-clients-docker" ]
+  vars:
+  tasks:
+    - name: WAN network emulation delete
+      command:
+        cmd: "tc qdisc del dev {{ lookup('env', 'WAN_DRIVE') }} root netem"
+      become: yes
+      become_user: root
+      ignore_errors: yes
+    - pam_limits:
+        domain: ubuntu
+        limit_type: soft
+        limit_item: nofile
+        value: 64000
+    - name: Delete all file in inventories
+      file:
+        state: absent
+        path: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}"
+    - name: create directory
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0777
+      loop:
+        - "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}configs"
+        - "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}logs"
+        - "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}data"
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+    - name: Log into DockerHub
+      docker_login:
+        username: "{{ lookup('env', 'DOCKER_USERNAME_ENV') }}"
+        password: "{{ lookup('env', 'DOCKER_PASSWORD_ENV') }}"
+    - name: Copy clients docker compose to inventories
+      copy:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/{{ lookup('env', 'DOCKER_COMPOSE_CLIENT_PATH') }}"
+        dest: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}docker-compose.yml"
+        mode: 0777
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+    - name: Tear down existing services
+      docker_compose:
+        project_src: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}"
+        state: absent
+        remove_images: all
+        remove_volumes: yes
+    - name: Copy app configs
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/{{ lookup('env', 'CLIENT_BUILD_PATH_LINUX') }}configs/app.env", dest: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}configs/app.env" }
+        - { src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/{{ lookup('env', 'CLIENT_BUILD_PATH_LINUX') }}configs/endpoints.yml", dest: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}configs/endpoints.yml" }
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+    - name: Add Outbound IP
+      ansible.builtin.lineinfile:
+        path: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}configs/app.env"
+        line: "IP_ADDRESS={{ ansible_ssh_host }}"
+    - name: Copy Certs and Keys
+      copy:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/certificates/{{ item.path }}/{{ inventory_hostname }}.pem"
+        dest: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}configs/{{ item.type }}.pem"
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+      loop:
+        - { type: key, path: keys }
+        - { type: cert, path: certs }
+    - name: Copy and unarchive Certs
+      ansible.builtin.unarchive:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/certificates/certs.tgz"
+        dest: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}configs/"
+        mode: 0777
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+    - name: WAN network emulation
+      command:
+        cmd: "tc qdisc add dev {{ lookup('env', 'WAN_DRIVE') }} root netem delay {{ lookup('env', 'WAN_DELAY') }}ms {{ lookup('env', 'WAN_JITTER') }}ms rate {{ lookup('env', 'WAN_RATE') }}kbit"
+      become: yes
+      become_user: root
+      ignore_errors: yes
+    - name: Create and start services
+      docker_compose:
+        project_src: "{{ lookup('env', 'REMOTE_CLIENT_PATH') }}"
+        remove_orphans: yes
+        pull: yes

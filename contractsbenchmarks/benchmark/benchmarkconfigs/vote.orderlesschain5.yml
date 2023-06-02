@@ -1,0 +1,24 @@
+---
+targetSystem: orderlesschain
+blockTimeOutMs: 1000
+blockTransactionSize: 10
+queueTickerDurationMS: 100
+gossipNodeCount: 1
+gossipIntervalMs: 1000
+transactionTimeoutSecond: 120
+totalNodeCount: 8
+totalClientCount: 16
+totalOrdererCount: 1
+endorsementPolicyOrgs: 4
+proposalQueueConsumptionRateTPS: 5000
+transactionQueueConsumptionRateTPS: 10000
+contactName: evotingcontractorderlesschain
+rounds:
+  - label: Vote and Read
+    benchmarkFunctionName: readwritetransactionwarm
+    numberOfClients: 16
+    transactionsSendDurationSecond: 180
+    totalSubmissionRate: 2500
+    numberOfKeys: 1000
+    numberOfKeysSecond: 8
+    reportImportance: true

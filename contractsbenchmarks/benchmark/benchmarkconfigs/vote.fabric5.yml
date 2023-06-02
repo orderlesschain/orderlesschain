@@ -1,0 +1,31 @@
+---
+targetSystem: fabric
+blockTimeOutMs: 500
+blockTransactionSize: 50
+queueTickerDurationMS: 100
+gossipNodeCount: 1
+gossipIntervalMs: 1000
+transactionTimeoutSecond: 120
+totalNodeCount: 8
+totalClientCount: 16
+totalOrdererCount: 1
+endorsementPolicyOrgs: 4
+proposalQueueConsumptionRateTPS: 5000
+transactionQueueConsumptionRateTPS: 5000
+contactName: evotingcontractfabric
+rounds:
+  - label: Create election, parties and ballots
+    benchmarkFunctionName: initelection
+    numberOfClients: 1
+    totalTransactions: 8
+    numberOfKeysSecond: 8
+    totalSubmissionRate: 10
+    reportImportance: false
+  - label: Vote and Read
+    benchmarkFunctionName: readwritetransaction
+    numberOfClients: 16
+    transactionsSendDurationSecond: 180
+    totalSubmissionRate: 2500
+    numberOfKeys: 1000
+    numberOfKeysSecond: 8
+    reportImportance: true

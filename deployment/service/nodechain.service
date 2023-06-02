@@ -1,0 +1,14 @@
+[Unit]
+Description=The Nodechain Node
+After=network.target
+
+[Service]
+ExecStart=/home/ubuntu/node/nodechain
+Restart=always
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/node/
+
+[Install]
+WantedBy=multi-user.target
+

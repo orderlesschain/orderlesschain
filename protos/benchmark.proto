@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package protos;
+option go_package = "./;protos";
+
+import "shared.proto";
+
+message ExperimentBase {
+  string experiment_id = 1;
+}
+
+message BenchmarkConfig {
+  ExperimentBase base = 1;
+  int32 transaction_per_second = 3;
+  int64 total_transactions = 4;
+  string contract_name = 5;
+  TargetSystem target_system = 6;
+  string benchmark_function_name = 7;
+  bool report_importance = 8;
+  int64 transaction_send_duration_second = 9;
+  int64 number_of_keys = 10;
+  int32 endorsement_policy_orgs = 11;
+  string crdt_object_count = 12;
+  string crdt_operation_per_object_count = 13;
+  string crdt_object_type = 14;
+  int64 number_of_keys_second = 15;
+  int64 number_of_keys_third = 16;
+}
+
+message ExperimentResult {
+  enum ExperimentStatus {
+    RUNNING = 0;
+    FAILED = 1;
+    DONE = 2;
+  }
+  ExperimentStatus experiment_status = 1;
+}
+
+message FaultyNodes {
+  repeated string node_id = 1;
+  int32 start_after_s = 2;
+}
+
+service BenchmarkService {
+  rpc ExecuteBenchmark (BenchmarkConfig) returns (Empty);
+  rpc FaultyNodesNotify (FaultyNodes) returns (Empty);
+  rpc ExecutionStatus (ExperimentBase) returns (ExperimentResult);
+  rpc GetExperimentResult (ExperimentBase) returns (stream ReportFile);
+  rpc ChangeModeRestart (OperationMode) returns (Empty);
+  rpc StopAndGetProfilingResult (Profiling) returns (stream ProfilingResult);
+  rpc FailureCommand (FailureCommandMode) returns (Empty);
+}

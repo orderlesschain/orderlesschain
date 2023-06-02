@@ -1,0 +1,81 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+servers=[
+  {
+    :hostname => "orderer-0",
+    :ip => "192.168.56.10",
+    :ssh_port => "2223",
+    :box => "ubuntu/focal64",
+    :ram => 1024,
+    :cpu => 1
+  },
+  {
+    :hostname => "node-0",
+    :ip => "192.168.56.11",
+    :ssh_port => "2224",
+    :box => "ubuntu/focal64",
+    :ram => 1024,
+    :cpu => 1
+  },
+  {
+    :hostname => "node-1",
+    :ip => "192.168.56.12",
+    :ssh_port => "2225",
+    :box => "ubuntu/focal64",
+    :ram => 1024,
+    :cpu => 1
+  },
+  {
+    :hostname => "client-0",
+    :ip => "192.168.56.13",
+    :ssh_port => "2226",
+    :box => "ubuntu/focal64",
+    :ram => 1024,
+    :cpu => 1
+  },
+  {
+    :hostname => "client-1",
+    :ip => "192.168.56.14",
+    :ssh_port => "2227",
+    :box => "ubuntu/focal64",
+    :ram => 1024,
+    :cpu => 1
+  },
+  {
+    :hostname => "cli-0",
+    :ip => "192.168.56.15",
+    :ssh_port => "2228",
+    :box => "ubuntu/focal64",
+    :ram => 2028,
+    :cpu => 2
+  }
+]
+
+Vagrant.configure(2) do |config|
+
+  VAGRANT_COMMAND = ARGV[0]
+  if VAGRANT_COMMAND == "ssh"
+    config.ssh.username = 'ubuntu'
+  end
+
+  servers.each do |machine|
+      config.vm.define machine[:hostname] do |node|
+          node.vm.box = machine[:box]
+          node.vm.hostname = machine[:hostname]
+          node.vm.network "private_network", ip: machine[:ip]
+          node.vm.provider "virtualbox" do |vb|
+            vb.memory = machine[:ram]
+            vb.cpus = machine[:cpu]
+            vb.name = machine[:hostname]
+          end
+          node.vm.network "forwarded_port", guest: 22, host: machine[:ssh_port]
+          node.ssh.port = machine[:ssh_port]
+          node.vm.provision "shell", inline: <<-SHELL
+            cp -pr /home/vagrant/.ssh /home/ubuntu/
+            chown -R ubuntu:ubuntu /home/ubuntu
+            echo "%ubuntu ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
+          SHELL
+      end
+  end
+end

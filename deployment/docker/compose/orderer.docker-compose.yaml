@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  orderer:
+    container_name: orderlesschainorderer
+    image: registry/orderlesschain-orderer:latest
+    restart: always
+    logging:
+      driver: journald
+    ports:
+      - "9000:9000"
+      - "6060:6060"
+    volumes:
+      - /home/ubuntu/orderer/logs:/orderer/logs
+      - /home/ubuntu/orderer/data:/orderer/data
+      - /home/ubuntu/orderer/configs:/orderer/configs

@@ -1,0 +1,65 @@
+---
+- name: Installing Docker on the hosts
+  hosts: orderers, nodes, clients
+  tags: [ "install-docker-env" ]
+  become: yes
+  vars:
+    docker_compose_version: "1.29.2"
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+    - name: Upgrade all apt packages
+      apt: upgrade=dist
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - gnupg-agent
+          - python3-docker
+          - python3-pip
+    - name: Install pip docker compose
+      pip: name=docker-compose
+    - name: Add an apt signing key for Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add apt repository for stable version
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    - name: Install Docker
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+    - name: Download docker-compose {{ docker_compose_version }}
+      get_url:
+        url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+        dest: ~/docker-compose
+        mode: '+x'
+    - name: Check docker-compose exists
+      stat: path=~/docker-compose
+      register: docker_compose
+    - name: Move docker-compose to /usr/local/bin/docker-compose
+      command: mv ~/docker-compose /usr/local/bin/docker-compose
+      when: docker_compose.stat.exists
+    - name: adding existing user ubuntu to group docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+
+# Source: https://www.valters.eu/how-to-install-docker-and-docker-compose-on-ubuntu-20-04-using-ansible/

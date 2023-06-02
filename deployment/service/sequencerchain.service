@@ -1,0 +1,14 @@
+[Unit]
+Description=The Sequencerchain Node
+After=network.target
+
+[Service]
+ExecStart=/home/ubuntu/sequencer/sequencerchain
+Restart=always
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/sequencer/
+
+[Install]
+WantedBy=multi-user.target
+

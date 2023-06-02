@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  client:
+    container_name: orderlesschainclient
+    image: registry/orderlesschain-client:latest
+    restart: always
+    logging:
+      driver: journald
+    ports:
+      - "9000:9000"
+      - "6060:6060"
+    volumes:
+      - /home/ubuntu/client/logs:/client/logs
+      - /home/ubuntu/client/data:/client/data
+      - /home/ubuntu/client/configs:/client/configs

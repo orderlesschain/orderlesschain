@@ -1,0 +1,14 @@
+[Unit]
+Description=The Ordererchain Node
+After=network.target
+
+[Service]
+ExecStart=/home/ubuntu/orderer/ordererchain
+Restart=always
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/orderer/
+
+[Install]
+WantedBy=multi-user.target
+

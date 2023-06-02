@@ -1,0 +1,73 @@
+---
+- name: Deploying orderer to the inventories
+  hosts: orderers
+  tags: [ "deploy-orderers" ]
+  vars:
+  tasks:
+    - name: WAN network emulation delete
+      command:
+        cmd: "tc qdisc del dev {{ lookup('env', 'WAN_DRIVE') }} root netem"
+      become: yes
+      become_user: root
+      ignore_errors: yes
+    - pam_limits:
+        domain: ubuntu
+        limit_type: soft
+        limit_item: nofile
+        value: 64000
+    - name: Stop ordererchain
+      ansible.builtin.service:
+        name: ordererchain
+        state: stopped
+      ignore_errors: yes
+    - name: Delete all file in inventories
+      file:
+        state: absent
+        path: "{{ lookup('env', 'REMOTE_ORDERER_PATH') }}"
+    - name: Copy systemd service file to server
+      copy:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/deployment/service/ordererchain.service"
+        dest: /etc/systemd/system
+        owner: root
+        group: root
+    - name: Copy orderer to inventories
+      copy:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/{{ lookup('env', 'ORDERER_BUILD_PATH_LINUX') }}"
+        dest: "{{ lookup('env', 'REMOTE_ORDERER_PATH') }}"
+        mode: 0777
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+    - name: Copy Certs and Keys
+      copy:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/certificates/{{ item.path }}/{{ inventory_hostname }}.pem"
+        dest: "{{ lookup('env', 'REMOTE_ORDERER_PATH') }}configs/{{ item.type }}.pem"
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+      loop:
+        - { type: key, path: keys }
+        - { type: cert, path: certs }
+    - name: Copy and unarchive Certs
+      ansible.builtin.unarchive:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/certificates/certs.tgz"
+        dest: "{{ lookup('env', 'REMOTE_ORDERER_PATH') }}configs/"
+        mode: 0777
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+      notify:
+        - Restart ordererchain
+    - name: WAN network emulation
+      command:
+        cmd: "tc qdisc add dev {{ lookup('env', 'WAN_DRIVE') }} root netem delay {{ lookup('env', 'WAN_DELAY') }}ms {{ lookup('env', 'WAN_JITTER') }}ms rate {{ lookup('env', 'WAN_RATE') }}kbit"
+      become: yes
+      become_user: root
+      ignore_errors: yes
+    - name: Start ordererchain
+      ansible.builtin.service:
+        name: ordererchain
+        state: started
+        enabled: yes
+  handlers:
+    - name: Restart ordererchain
+      ansible.builtin.service:
+        name: ordererchain
+        state: restarted

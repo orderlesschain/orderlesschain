@@ -1,0 +1,39 @@
+---
+- name: Sync the file to the linux build server and build the node, orderer, sequencer, and client
+  hosts: clis
+  tags: [ "build-components" ]
+  tasks:
+    - name: Copy project files to the build server
+      synchronize:
+        src: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}"
+        dest: "{{ lookup('env', 'PROJECT_REMOTE_PATH_SYNC') }}"
+        rsync_path: "sudo -u ubuntu rsync"
+        recursive: yes
+        delete: yes
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=.DS_Store"
+          - "--exclude=.idea"
+          - "--exclude=deployment/"
+          - "--exclude=docs/"
+          - "--exclude=scripts/"
+          - "--exclude=build/"
+          - "--exclude=data/"
+          - "--exclude=orderlesschain-experiments/"
+          - "--exclude=orderlesschain-experiments-archive/"
+    - name: Building the node, orderer, sequencer and client
+      make:
+        chdir: "{{ lookup('env', 'PROJECT_REMOTE_PATH') }}"
+        target: build
+      become: yes
+      become_user: "{{ lookup('env', 'REMOTE_USER') }}"
+    - name: Fetch built components from built server
+      fetch:
+        src: "{{ item.src }}/{{ item.src_bin }}"
+        dest: "{{ lookup('env', 'PROJECT_ABSOLUTE_PATH') }}/{{ item.dest }}"
+        flat: yes
+      loop:
+        - { src: "{{ lookup('env', 'NODE_BUILD_PATH_LINUX_REMOTE') }}",  src_bin: "{{ lookup('env', 'NODE_BINARY') }}", dest: "{{ lookup('env', 'NODE_BUILD_PATH_LINUX') }}" }
+        - { src: "{{ lookup('env', 'ORDERER_BUILD_PATH_LINUX_REMOTE') }}",  src_bin: "{{ lookup('env', 'ORDERER_BINARY') }}", dest: "{{ lookup('env', 'ORDERER_BUILD_PATH_LINUX') }}" }
+        - { src: "{{ lookup('env', 'SEQUENCER_BUILD_PATH_LINUX_REMOTE') }}",  src_bin: "{{ lookup('env', 'SEQUENCER_BINARY') }}", dest: "{{ lookup('env', 'SEQUENCER_BUILD_PATH_LINUX') }}" }
+        - { src: "{{ lookup('env', 'CLIENT_BUILD_PATH_LINUX_REMOTE') }}", src_bin: "{{ lookup('env', 'CLIENT_BINARY') }}", dest: "{{ lookup('env', 'CLIENT_BUILD_PATH_LINUX') }}" }

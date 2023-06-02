@@ -1,0 +1,46 @@
+---
+targetSystem: orderlesschain
+blockTimeOutMs: 1000
+blockTransactionSize: 10
+queueTickerDurationMS: 100
+gossipNodeCount: 1
+gossipIntervalMs: 1000
+transactionTimeoutSecond: 10
+totalNodeCount: 16
+totalClientCount: 24
+totalOrdererCount: 1
+endorsementPolicyOrgs: 4
+extraEndorsementOrgs: 0
+proposalQueueConsumptionRateTPS: 5000
+transactionQueueConsumptionRateTPS: 10000
+contactName: syntheticcontractorderlesschain
+rounds:
+  - label: Modify and Read CRDTs
+    benchmarkFunctionName: readwritetransactionwarm
+    numberOfClients: 24
+    numberOfKeys: 1000
+    transactionsSendDurationSecond: 180
+    totalSubmissionRate: 3000
+    reportImportance: true
+    crdtObjectCount: 1
+    crdtOperationPerObjectCount: 1
+    crdtObjectType: counter
+    failures:
+      - failureStartS: 30
+        durationS: 45
+        failedOrgsCount: 1
+        failureType: random
+        notifyClients: true
+        clientStartAfterS: 10
+      - failureStartS: 70
+        durationS: 45
+        failedOrgsCount: 2
+        failureType: random
+        notifyClients: true
+        clientStartAfterS: 10
+      - failureStartS: 110
+        durationS: 40
+        failedOrgsCount: 3
+        failureType: random
+        notifyClients: true
+        clientStartAfterS: 10

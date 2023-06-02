@@ -1,0 +1,24 @@
+---
+targetSystem: orderlesschain
+blockTimeOutMs: 1000
+blockTransactionSize: 10
+queueTickerDurationMS: 100
+gossipNodeCount: 1
+gossipIntervalMs: 1000
+transactionTimeoutSecond: 120
+totalNodeCount: 4
+totalClientCount: 4
+totalOrdererCount: 1
+endorsementPolicyOrgs: 2
+proposalQueueConsumptionRateTPS: 5000
+transactionQueueConsumptionRateTPS: 10000
+contactName: iotcontractorderlesschain
+rounds:
+  - label: Submit and Monitor
+    benchmarkFunctionName: readwritetransactionwarm
+    numberOfClients: 4
+    numberOfKeys: 20
+    numberOfKeysSecond: 5
+    transactionsSendDurationSecond: 30
+    totalSubmissionRate: 40
+    reportImportance: true

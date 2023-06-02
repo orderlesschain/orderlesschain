@@ -1,0 +1,32 @@
+---
+targetSystem: bidl
+blockTimeOutMs: 500
+blockTransactionSize: 50
+queueTickerDurationMS: 100
+gossipNodeCount: 1
+gossipIntervalMs: 1000
+transactionTimeoutSecond: 120
+totalNodeCount: 16
+totalClientCount: 32
+totalOrdererCount: 1
+totalSequencerCount: 1
+endorsementPolicyOrgs: 4
+proposalQueueConsumptionRateTPS: 5000
+transactionQueueConsumptionRateTPS: 5000
+contactName: evotingcontractbidl
+rounds:
+  - label: Create election, parties and ballots
+    benchmarkFunctionName: initelection
+    numberOfClients: 1
+    totalTransactions: 8
+    numberOfKeysSecond: 8
+    totalSubmissionRate: 10
+    reportImportance: false
+  - label: Vote and Read
+    benchmarkFunctionName: readwritetransaction
+    numberOfClients: 32
+    transactionsSendDurationSecond: 180
+    totalSubmissionRate: 3500
+    numberOfKeys: 1000
+    numberOfKeysSecond: 8
+    reportImportance: true

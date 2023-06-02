@@ -1,0 +1,32 @@
+---
+targetSystem: synchotstuff
+blockTimeOutMs: 500
+blockTransactionSize: 50
+queueTickerDurationMS: 100
+gossipNodeCount: 1
+gossipIntervalMs: 1000
+transactionTimeoutSecond: 240
+totalNodeCount: 16
+totalClientCount: 32
+totalOrdererCount: 1
+totalSequencerCount: 1
+endorsementPolicyOrgs: 4
+proposalQueueConsumptionRateTPS: 5000
+transactionQueueConsumptionRateTPS: 5000
+contactName: englishauctioncontractsynchotstuff
+rounds:
+  - label: Create auction
+    benchmarkFunctionName: createauction
+    numberOfClients: 1
+    totalTransactions: 8
+    numberOfKeysSecond: 8
+    totalSubmissionRate: 10
+    reportImportance: false
+  - label: Bid and get highest price
+    benchmarkFunctionName: readwritetransaction
+    numberOfClients: 32
+    transactionsSendDurationSecond: 180
+    totalSubmissionRate: 4000
+    numberOfKeys: 1000
+    numberOfKeysSecond: 8
+    reportImportance: true

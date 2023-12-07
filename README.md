@@ -1,6 +1,6 @@
 # OrderlessChain  - A CRDT-Enabled BFT Blockchain Without Total Global Order of Transactions.
 
-Paper: [OrderlessChain: Do Permissioned Blockchains Need Total Global Order of Transactions?](https://arxiv.org/abs/2210.01477)
+Paper: [OrderlessChain: A CRDT-based BFT Coordination-free Blockchain Without Global Order of Transactions](https://dl.acm.org/doi/abs/10.1145/3590140.3629111)
 
 Poster Paper: [ACM Liberary](https://dl.acm.org/doi/10.1145/3565386.3565486)
 
